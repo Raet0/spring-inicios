@@ -22,10 +22,18 @@ import ec.edu.ups.icc.fundamentos01.users.dtos.UpdateUserDto;
 import ec.edu.ups.icc.fundamentos01.users.dtos.UserResponseDto;
 import ec.edu.ups.icc.fundamentos01.users.entities.User;
 import ec.edu.ups.icc.fundamentos01.users.mappers.UserMapper;
+import ec.edu.ups.icc.fundamentos01.users.services.UserService;
 
 @RestController
 @RequestMapping("/api/users")
 public class UsersController {
+
+    private final UserService service;
+
+    public UsersController(UserService service) {
+        this.service = service;
+    }
+
 
     private List<User> users = new ArrayList<>();
     private int currentId = 1;
