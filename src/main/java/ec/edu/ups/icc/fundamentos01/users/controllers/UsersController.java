@@ -3,8 +3,6 @@ package ec.edu.ups.icc.fundamentos01.users.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.text.html.HTMLDocument.Iterator;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
