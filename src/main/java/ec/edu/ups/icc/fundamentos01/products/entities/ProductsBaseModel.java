@@ -1,16 +1,15 @@
-package ec.edu.ups.icc.fundamentos01.fundamentos01.core.entities;
+package ec.edu.ups.icc.fundamentos01.products.entities;
 
 import java.time.LocalDateTime;
-
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 
 @MappedSuperclass
-public abstract class BaseModel {
+public abstract class ProductsBaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +31,8 @@ public abstract class BaseModel {
         this.updatedAt = LocalDateTime.now();
     }
 
+    // ===== Getters y Setters =====
+
     public Long getId() {
         return id;
     }
@@ -44,16 +45,8 @@ public abstract class BaseModel {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public boolean isDeleted() {
@@ -63,6 +56,4 @@ public abstract class BaseModel {
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
-
 }
-

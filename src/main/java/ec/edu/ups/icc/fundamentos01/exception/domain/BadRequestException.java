@@ -1,8 +1,7 @@
 package ec.edu.ups.icc.fundamentos01.exception.domain;
 
+import ec.edu.ups.icc.fundamentos01.exception.base.ApplicationException;
 import org.springframework.http.HttpStatus;
-
-import ec.edu.ups.icc.fundamentos01.fundamentos01.exception.base.ApplicationException;
 
 public class BadRequestException extends ApplicationException {
 

@@ -1,20 +1,23 @@
 package ec.edu.ups.icc.fundamentos01.exception.handler;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import ec.edu.ups.icc.fundamentos01.exception.base.ApplicationException;
+import ec.edu.ups.icc.fundamentos01.exception.response.ErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import ec.edu.ups.icc.fundamentos01.fundamentos01.exception.base.ApplicationException;
-import ec.edu.ups.icc.fundamentos01.fundamentos01.exception.base.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(ApplicationException.class)
     public ResponseEntity<ErrorResponse> handleApplicationException(
@@ -62,6 +65,8 @@ public class GlobalExceptionHandler {
             Exception ex,
             HttpServletRequest request
     ) {
+        LOG.error("Unexpected error in request {}", request.getRequestURI(), ex);
+
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Error interno del servidor",

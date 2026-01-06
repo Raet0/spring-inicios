@@ -1,37 +1,17 @@
 package ec.edu.ups.icc.fundamentos01.users.controllers;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import ec.edu.ups.icc.fundamentos01.users.dtos.CreateUserDto;
-import ec.edu.ups.icc.fundamentos01.users.dtos.PartialUpdateUserDto;
-import ec.edu.ups.icc.fundamentos01.users.dtos.UpdateUserDto;
-import ec.edu.ups.icc.fundamentos01.users.dtos.UserResponseDto;
 import ec.edu.ups.icc.fundamentos01.users.entities.User;
+import ec.edu.ups.icc.fundamentos01.users.dtos.*;
 import ec.edu.ups.icc.fundamentos01.users.mappers.UserMapper;
 import ec.edu.ups.icc.fundamentos01.users.services.UserService;
+
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/users")
 public class UsersController {
-
-    private final UserService service;
-
-    public UsersController(UserService service) {
-        this.service = service;
-    }
-
 
     private List<User> users = new ArrayList<>();
     private int currentId = 1;
@@ -43,15 +23,20 @@ public class UsersController {
                 .toList();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> findOne(@PathVariable int id) {
+ @GetMapping("/{id}")
+public Object findOne(@PathVariable int id) {
 
-        return users.stream()
-                .filter(u -> u.getId() == id)
-                .findFirst()
-                .map(user -> ResponseEntity.ok(UserMapper.toResponse(user)))
-                .orElse(ResponseEntity.notFound().build());
+    for (User user : users) {
+        if (user.getId() == id) {
+            return UserMapper.toResponse(user);
+        }
     }
+
+    return new Object() {
+        public String error = "User not found";
+    };
+}
+
 
     @PostMapping
     public UserResponseDto create(@RequestBody CreateUserDto dto) {
@@ -61,28 +46,37 @@ public class UsersController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDto> update(
-            @PathVariable int id,
-            @RequestBody UpdateUserDto dto) {
+    public Object update(@PathVariable int id, @RequestBody UpdateUserDto dto) {
 
-        return users.stream()
+        User user = users.stream()
                 .filter(u -> u.getId() == id)
                 .findFirst()
-                .map(user -> {
-                    user.setName(dto.getName());
-                    user.setEmail(dto.getEmail());
-                    return ResponseEntity.ok(UserMapper.toResponse(user));
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
+                .orElse(null);
 
-    @PatchMapping("/{id}")
-    public Object partialUpdate(@PathVariable int id, @RequestBody PartialUpdateUserDto dto) {
-        User user = users.stream().filter(u -> u.getId() == id).findFirst().orElse(null);
         if (user == null)
             return new Object() {
                 public String error = "User not found";
             };
+
+        user.setName(dto.name);
+        user.setEmail(dto.email);
+
+        return UserMapper.toResponse(user);
+    }
+
+    @PatchMapping("/{id}")
+    public Object partialUpdate(@PathVariable int id, @RequestBody PartialUpdateUserDto dto) {
+
+        User user = users.stream()
+                .filter(u -> u.getId() == id)
+                .findFirst()
+                .orElse(null);
+
+        if (user == null)
+            return new Object() {
+                public String error = "User not found";
+            };
+
         if (dto.name != null)
             user.setName(dto.name);
         if (dto.email != null)
@@ -90,13 +84,26 @@ public class UsersController {
 
         return UserMapper.toResponse(user);
     }
-    // delete
 
     @DeleteMapping("/{id}")
     public Object delete(@PathVariable int id) {
-        boolean exists = users.removeIf(u -> u.getId() == id);
-        if (!exists) return new Object() { public String error = "User not found"; };
 
-        return new Object() { public String message = "Deleted successfully"; };
+        boolean deleted = users.removeIf(u -> u.getId() == id);
+
+        if (!deleted)
+            return new Object() {
+                public String error = "User not found";
+            };
+
+        return new Object() {
+            public String message = "Deleted successfully";
+        };
     }
+
+    private final UserService service;
+
+    public UsersController(UserService service) {
+        this.service = service;
+    }
+
 }

@@ -1,24 +1,19 @@
 package ec.edu.ups.icc.fundamentos01.products.dtos;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class UpdateProductDto {
-    @NotBlank
-    @Size(min = 3, max = 150)
+
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(min = 3, max = 150, message = "El nombre debe tener al menos 3 caracteres")
     public String name;
 
-    @NotBlank
-    @Size(min = 5, max = 500)
-    public String description;
-
-    @DecimalMin(value = "0.01")
+    @DecimalMin(value = "0.0", message = "El precio debe ser mayor o igual a 0")
     public double price;
 
-    @Min(value = 0)
+    @Min(value = 0, message = "El stock debe ser mayor o igual a 0")
     public int stock;
 }
-
-
