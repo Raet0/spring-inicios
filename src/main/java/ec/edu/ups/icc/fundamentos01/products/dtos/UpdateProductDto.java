@@ -1,19 +1,28 @@
 package ec.edu.ups.icc.fundamentos01.products.dtos;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class UpdateProductDto {
-
     @NotBlank(message = "El nombre es obligatorio")
-    @Size(min = 3, max = 150, message = "El nombre debe tener al menos 3 caracteres")
+    @Size(min = 3, max = 150)
     public String name;
 
-    @DecimalMin(value = "0.0", message = "El precio debe ser mayor o igual a 0")
-    public double price;
+    @NotNull(message = "El precio es obligatorio")
+    @DecimalMin(value = "0.0", inclusive = false)
+    public Double price;
 
-    @Min(value = 0, message = "El stock debe ser mayor o igual a 0")
-    public int stock;
+    @Size(max = 500)
+    public String description;
+
+    // ============== ACTUALIZACIÓN DE RELACIONES ==============
+
+    @NotNull(message = "El ID de la categoría es obligatorio")
+    public Long categoryId;
+
+    // Nota: No se permite cambiar el owner de un producto una vez creado
+    // Si fuera necesario, sería una operación de negocio especial
+
 }

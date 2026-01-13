@@ -6,7 +6,9 @@ import ec.edu.ups.icc.fundamentos01.products.dtos.ProductResponseDto;
 import ec.edu.ups.icc.fundamentos01.products.dtos.UpdateProductDto;
 import ec.edu.ups.icc.fundamentos01.products.entities.Product;
 import ec.edu.ups.icc.fundamentos01.products.mappers.ProductMapper;
+import ec.edu.ups.icc.fundamentos01.products.repositories.CategoryRepository;
 import ec.edu.ups.icc.fundamentos01.products.repositories.ProductRepository;
+import ec.edu.ups.icc.fundamentos01.users.entities.UserEntity;
 import ec.edu.ups.icc.fundamentos01.exception.domain.ConflictException;
 import ec.edu.ups.icc.fundamentos01.exception.domain.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,9 +18,14 @@ import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService {
 
+    private final ProductRepository userRepo;
+    private  final CategoryRepository categoryRepository;
+
+
     private final ProductRepository repo;
 
-    public ProductServiceImpl(ProductRepository repo) {
+    public ProductServiceImpl(ProductRepository repoductRepo) {
+
         this.repo = repo;
     }
 
@@ -41,7 +48,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponseDto create(CreateProductDto dto) {
+        UserEntity ownwer = userRepo.findById(dto.userId).
+        orElseThrow(() -> new NotFoundException( message : "user not exist"));
         // Regla de negocio: nombre único
+
         if (repo.existsByName(dto.name)) {
             throw new ConflictException("El nombre ya está registrado");
         }
