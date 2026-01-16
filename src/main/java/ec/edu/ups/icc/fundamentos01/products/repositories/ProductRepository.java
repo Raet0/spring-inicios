@@ -1,45 +1,54 @@
 package ec.edu.ups.icc.fundamentos01.products.repositories;
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ec.edu.ups.icc.fundamentos01.products.entities.ProductEntity;
 
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Repositorio para operaciones CRUD de ProductEntity
+ * Incluye consultas relacionales con User y Category
+ */
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
+
+    /**
+     * Verifica si existe un producto con ese nombre
+     */
     boolean existsByName(String name);
+
+    /**
+     * Encuentra un producto por nombre
+     */
+    Optional<ProductEntity> findByName(String name);
+
     /**
      * Encuentra todos los productos de un usuario específico
-     * Spring Data JPA genera: SELECT * FROM products WHERE user_id = ?
      */
     List<ProductEntity> findByOwnerId(Long userId);
 
     /**
-     * Encuentra todos los productos de una categoría específica
-     * Spring Data JPA genera: SELECT * FROM products WHERE category_id = ?
+     * Encuentra todos los productos que tienen una categoría específica
      */
-    List<ProductEntity> findByCategoryId(Long categoryId);
+    List<ProductEntity> findByCategoriesId(Long categoryId);
 
     /**
      * Encuentra productos por nombre de usuario
-     * Genera JOIN automáticamente: 
-     * SELECT p.* FROM products p JOIN users u ON p.user_id = u.id WHERE u.name = ?
+     * Genera JOIN automáticamente
      */
     List<ProductEntity> findByOwnerName(String ownerName);
 
     /**
      * Encuentra productos por nombre de categoría
-     * Genera JOIN automáticamente:
-     * SELECT p.* FROM products p JOIN categories c ON p.category_id = c.id WHERE c.name = ?
+     * Genera JOIN automáticamente
      */
-    List<ProductEntity> findByCategoryName(String categoryName);
+    List<ProductEntity> findByCategoriesName(String categoryName);
 
     /**
      * Encuentra productos con precio mayor a X de una categoría específica
-     * Consulta con múltiples condiciones
-     * Genera:
-     * SELECT p.* FROM products p WHERE p.category_id = ? AND p.price > ?
      */
-    List<ProductEntity> findByCategoryIdAndPriceGreaterThan(Long categoryId, Double price);
-}
+    List<ProductEntity> findByCategoriesIdAndPriceGreaterThan(Long categoryId, Double price);
+} 
+

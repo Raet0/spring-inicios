@@ -4,96 +4,136 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import ec.edu.ups.icc.fundamentos01.categories.entities.CategoryEntity;
+import java.util.HashSet;
+import java.util.Set;
 import ec.edu.ups.icc.fundamentos01.core.entities.BaseModel;
+import ec.edu.ups.icc.fundamentos01.categories.entity.CategoryEntity;
 import ec.edu.ups.icc.fundamentos01.users.entities.UserEntity;
 
+/**
+ * Entidad Product persistente
+ * Propietaria de las relaciones 1:N (con User y Category) y N:N (con Categories)
+ */
 @Entity
 @Table(name = "products")
 public class ProductEntity extends BaseModel {
 
-        @Column(nullable = false, length = 150)
-        private String name;
+    @Column(nullable = false, length = 150)
+    private String name;
 
-        @Column(nullable = false)
-        private Double price;
+    @Column(nullable = false)
+    private Double price;
 
-        @Column(length = 500)
-        private String description;
+    @Column(nullable = false)
+    private int stock;
 
-        // ================== RELACIONES 1:N ==================
+    @Column(length = 500)
+    private String description;
 
-        /**
-         * Relación Many-to-One con User
-         * Muchos productos pertenecen a un usuario (owner/creator)
-         */
-        @ManyToOne(optional = false, fetch = FetchType.LAZY)
-        @JoinColumn(name = "user_id", nullable = false)
-        private UserEntity owner;
+    // ================== RELACIONES 1:N ==================
 
-        /**
-         * Relación Many-to-One con Category
-         * Muchos productos pertenecen a una categoría
-         */
-        @ManyToOne(optional = false, fetch = FetchType.LAZY)
-        @JoinColumn(name = "category_id", nullable = false)
-        private CategoryEntity category;
+    /**
+     * Relación Many-to-One con User
+     * Muchos productos pertenecen a un usuario (owner/creator)
+     */
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity owner;
 
-        // Constructores
-        public ProductEntity() {
-        }
+    // ================== RELACIÓN N:N ==================
+    
+    /**
+     * Relación Many-to-Many con Category
+     * Un producto puede tener múltiples categorías
+     * Una categoría puede estar en múltiples productos
+     */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "product_categories",                    // Tabla intermedia
+        joinColumns = @JoinColumn(name = "product_id"), // FK hacia products
+        inverseJoinColumns = @JoinColumn(name = "category_id") // FK hacia categories
+    )
+    private Set<CategoryEntity> categories = new HashSet<>();
 
-        // Getters y setter....
+    // ===== Constructores =====
 
-        // Getters y setters
-        public String getName() {
-            return name;
-        }
+    public ProductEntity() {
+    }
 
-        public double getPrice() {
-            return price;
-        }
+    // ===== Getters y Setters =====
 
-        public String getDescription() {
-            return description;
-        }
-        // public int getId() { return id; }
+    public String getName() {
+        return name;
+    }
 
-        public void setName(String name) {
-            this.name = name;
-        }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-        public void setPrice(double price) {
-            this.price = price;
-        }
+    public Double getPrice() {
+        return price;
+    }
 
-        public void setDescription(String description) {
-            this.description = description;
-        }
+    public void setPrice(Double price) {
+        this.price = price;
+    }
 
-        public void setPrice(Double price) {
-            this.price = price;
-        }
+    public int getStock() {
+        return stock;
+    }
 
-        public UserEntity getOwner() {
-            return owner;
-        }
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
 
-        public void setOwner(UserEntity owner) {
-            this.owner = owner;
-        }
+    public String getDescription() {
+        return description;
+    }
 
-        public CategoryEntity getCategory() {
-            return category;
-        }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-        public void setCategory(CategoryEntity category) {
-            this.category = category;
-        }
+    public UserEntity getOwner() {
+        return owner;
+    }
 
-        
-        // public void setId(int id) { this.id = id; }
+    public void setOwner(UserEntity owner) {
+        this.owner = owner;
+    }
 
+    public Set<CategoryEntity> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<CategoryEntity> categories) {
+        this.categories = categories != null ? categories : new HashSet<>();
+    }
+
+    // ============== MÉTODOS DE CONVENIENCIA ==============
+
+    /**
+     * Agrega una categoría al producto
+     */
+    public void addCategory(CategoryEntity category) {
+        this.categories.add(category);
+    }
+
+    /**
+     * Remueve una categoría del producto
+     */
+    public void removeCategory(CategoryEntity category) {
+        this.categories.remove(category);
+    }
+
+    /**
+     * Limpia todas las categorías
+     */
+    public void clearCategories() {
+        this.categories.clear();
+    }
 }
