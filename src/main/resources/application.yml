@@ -4,6 +4,7 @@ spring:
     username: ups
     password: ups123
   jpa:
+    show-sql: true
     hibernate:
       ddl-auto: update
     properties:

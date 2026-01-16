@@ -1,11 +1,7 @@
 package ec.edu.ups.icc.fundamentos01.users.services;
 
 import java.util.List;
-
-import ec.edu.ups.icc.fundamentos01.users.dtos.CreateUserDto;
-import ec.edu.ups.icc.fundamentos01.users.dtos.UserResponseDto;
-import ec.edu.ups.icc.fundamentos01.users.dtos.UpdateUserDto;
-import ec.edu.ups.icc.fundamentos01.users.dtos.PartialUpdateUserDto;
+import ec.edu.ups.icc.fundamentos01.users.dtos.*;
 
 public interface UserService {
 
@@ -19,5 +15,6 @@ public interface UserService {
 
     Object partialUpdate(int id, PartialUpdateUserDto dto);
 
-    Object delete(int id);
+    void delete(int id);
+
 }
