@@ -1,10 +1,10 @@
-// src/main/java/ec/edu/ups/icc/fundamentos01/products/dtos/UpdateProductDto.java
 package ec.edu.ups.icc.fundamentos01.products.dtos;
+
+import java.util.Set;
 
 import jakarta.validation.constraints.*;
 
 public class UpdateProductDto {
-
     @NotBlank(message = "El nombre es obligatorio")
     @Size(min = 3, max = 150)
     public String name;
@@ -16,9 +16,10 @@ public class UpdateProductDto {
     @Size(max = 500)
     public String description;
     
-    @Min(value = 0)  
+    @Min(value = 0)
     public Integer stock;
 
-    @NotNull(message = "El ID de la categoría es obligatorio")
-    public Long categoryId;
+    @NotNull(message = "Debe especificar al menos una categoría")
+    @Size(min = 1, message = "El producto debe tener al menos una categoría")
+    public Set<Long> categoryIds;  // ⭐ Cambió de Long a Set<Long>
 }

@@ -1,4 +1,3 @@
-// src/main/java/ec/edu/ups/icc/fundamentos01/products/entities/ProductEntity.java
 package ec.edu.ups.icc.fundamentos01.products.entities;
 
 import java.util.HashSet;
@@ -19,35 +18,36 @@ public class ProductEntity extends BaseModel {
     @Column(nullable = false)
     private Double price;
 
-    @Column(length = 500)   
+    @Column(length = 500)
     private String description;
 
     @Column(nullable = false)
     private Integer stock;
 
-    // @ManyToOne(fetch = FetchType.LAZY, optional = false)  
-    // @JoinColumn(name = "category_id", nullable = false)
-    // private CategoryEntity category;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)  
+    // ============== RELACIÓN 1:N (se mantiene) ==============
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private UserEntity owner;
 
+    // ============== NUEVA RELACIÓN N:N ==============
+    /**
+     * Relación Many-to-Many con Category
+     * Un producto puede tener múltiples categorías
+     * Una categoría puede estar en múltiples productos
+     */
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "product_categories", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @JoinTable(
+        name = "product_categories",                    // Tabla intermedia
+        joinColumns = @JoinColumn(name = "product_id"), // FK hacia products
+        inverseJoinColumns = @JoinColumn(name = "category_id") // FK hacia categories
+    )
     private Set<CategoryEntity> categories = new HashSet<>();
 
-    // new method
-    public Set<CategoryEntity> getCategories(){
-        return categories;
+    // ============== CONSTRUCTORES ==============
+    public ProductEntity() {
     }
 
-    public void setCategories(Set<CategoryEntity> categories){
-        this.categories = categories;
-    }
-
-
-    // Getters y Setters
+    // ============== GETTERS Y SETTERS ==============
     public String getName() {
         return name;
     }
@@ -64,11 +64,11 @@ public class ProductEntity extends BaseModel {
         this.price = price;
     }
 
-    public String getDescription() {  
+    public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {  
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -80,14 +80,6 @@ public class ProductEntity extends BaseModel {
         this.stock = stock;
     }
 
-    // public CategoryEntity getCategory() {
-    //     return category;
-    // }
-
-    // public void setCategory(CategoryEntity category) {
-    //     this.category = category;
-    // }
-
     public UserEntity getOwner() {
         return owner;
     }
@@ -96,17 +88,38 @@ public class ProductEntity extends BaseModel {
         this.owner = owner;
     }
 
-    // new method
-    public void removeCategory(CategoryEntity entity){
-        this.categories.remove(entity);
-
+    public Set<CategoryEntity> getCategories() {
+        return categories;
     }
 
-    public void addCategory(CategoryEntity entity){
-        this.categories.add(entity);
+    public void setCategories(Set<CategoryEntity> categories) {
+        this.categories = categories != null ? categories : new HashSet<>();
     }
 
-    public void clearCategory(CategoryEntity entity){
-        this.categories.clear();
+    // ============== MÉTODOS DE CONVENIENCIA ==============
+    /**
+     * Agrega una categoría al producto y sincroniza la relación bidireccional
+     */
+    public void addCategory(CategoryEntity category) {
+        this.categories.add(category);
+        category.getProducts().add(this);
     }
+
+    /**
+     * Remueve una categoría del producto y sincroniza la relación bidireccional
+     */
+    public void removeCategory(CategoryEntity category) {
+        this.categories.remove(category);
+        category.getProducts().remove(this);
+    }
+
+    /**
+     * Limpia todas las categorías y sincroniza las relaciones
+     */
+    public void clearCategories() {
+        for (CategoryEntity category : new HashSet<>(this.categories)) {
+            removeCategory(category);
+        }
+    }
+
 }

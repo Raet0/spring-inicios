@@ -12,23 +12,25 @@ import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
+    Optional<ProductEntity> findByName(String name);
 
     List<ProductEntity> findByOwnerId(Long userId);
 
-    List<ProductEntity> findByCategoryId(Long categoryId);  // ⭐ AGREGAR ESTE
+    List<ProductEntity> findByOwnerName(String name);
+
+    List<ProductEntity> findByCategoriesId(Long categoryId);
 
     List<ProductEntity> findByCategoriesName(String categoryName);
 
-    Optional<ProductEntity> findByName(String name);
-    List<ProductEntity> findByOwnerName(String name);
-    
-    // List<ProductEntity> findByCategoryName(String name);
-    // List<ProductEntity> findByCategoryIdAndPriceGreaterThan(Long category_id, Double price);
+    List<ProductEntity> findByCategoriesIdAndPriceGreaterThan(Long categoryId, Double price);
 
-    @Query("SELECT p FROM ProductEntity p" +
-        "WHERE SIZE(p.categories) >- categoryCount " +
-        "AND :categoryCount = " +
-        "(SELECT COUNT(c) FROM p.categories c WHERE c.id IN :categoryIds)")
+    @Query("""
+        SELECT p FROM ProductEntity p
+        WHERE SIZE(p.categories) >= :categoryCount
+          AND :categoryCount = (
+             SELECT COUNT(c) FROM p.categories c WHERE c.id IN :categoryIds
+          )
+    """)
     List<ProductEntity> findByAllCategories(@Param("categoryIds") List<Long> categoryIds,
                                             @Param("categoryCount") long categoryCount);
 }

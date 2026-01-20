@@ -4,6 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import ec.edu.ups.icc.fundamentos01.categories.entities.CategoryEntity;
+import ec.edu.ups.icc.fundamentos01.products.dtos.ProductResponseDto;
+import ec.edu.ups.icc.fundamentos01.products.entities.ProductEntity;
+import ec.edu.ups.icc.fundamentos01.products.repositories.ProductRepository;
 import ec.edu.ups.icc.fundamentos01.users.dtos.CreateUserDto;
 import ec.edu.ups.icc.fundamentos01.users.dtos.PartialUpdateUserDto;
 import ec.edu.ups.icc.fundamentos01.users.dtos.UpdateUserDto;
@@ -15,14 +19,14 @@ import ec.edu.ups.icc.fundamentos01.users.repositories.UserRepository;
 
 @Service
 public class UserServiceImpl implements UserService {
-
     private final UserRepository userRepo;
+    private final ProductRepository productRepository;
 
-    public UserServiceImpl(UserRepository userRepo) {
+    public UserServiceImpl(UserRepository userRepo, ProductRepository productRepository) {
         this.userRepo = userRepo;
+        this.productRepository = productRepository;
     }
 
-    // ==================== FIND ALL ====================
     @Override
     public List<UserResponseDto> findAll() {
         return userRepo.findAll()
@@ -32,7 +36,6 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
-    // ==================== FIND ONE ====================
     @Override
     public UserResponseDto findOne(int id) {
         return userRepo.findById((long) id)
@@ -41,21 +44,14 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new IllegalStateException("User not found"));
     }
 
-    // ==================== CREATE ====================
-@Override
-public UserResponseDto create(CreateUserDto dto) {
+    @Override
+    public UserResponseDto create(CreateUserDto dto) {
+        User user = User.fromDto(dto);
+        UserEntity entity = user.toEntity();
+        UserEntity saved = userRepo.save(entity);
+        return UserMapper.toResponse(User.fromEntity(saved));
+    }
 
-    User user = User.fromDto(dto);          // DTO → Dominio
-    UserEntity entity = user.toEntity();    // Dominio → Entidad
-    UserEntity saved = userRepo.save(entity); // Persistencia
-
-    return UserMapper.toResponse(
-            User.fromEntity(saved)          // Entidad → Dominio
-    );
-}
-
-
-    // ==================== UPDATE ====================
     @Override
     public UserResponseDto update(int id, UpdateUserDto dto) {
         return userRepo.findById((long) id)
@@ -68,7 +64,6 @@ public UserResponseDto create(CreateUserDto dto) {
                 .orElseThrow(() -> new IllegalStateException("User not found"));
     }
 
-    // ==================== PARTIAL UPDATE ====================
     @Override
     public UserResponseDto partialUpdate(int id, PartialUpdateUserDto dto) {
         return userRepo.findById((long) id)
@@ -81,7 +76,6 @@ public UserResponseDto create(CreateUserDto dto) {
                 .orElseThrow(() -> new IllegalStateException("User not found"));
     }
 
-    // ==================== DELETE ====================
     @Override
     public void delete(int id) {
         userRepo.findById((long) id)
@@ -91,5 +85,44 @@ public UserResponseDto create(CreateUserDto dto) {
                             throw new IllegalStateException("User not found");
                         }
                 );
+    }
+
+    @Override
+    public List<ProductResponseDto> getProductsByUserId(Long userId) {
+        if (!userRepo.existsById(userId)) {
+            throw new IllegalStateException("User not found");
+        }
+        return productRepository.findByOwnerId(userId).stream()
+                .map(this::toProductResponse)
+                .toList();
+    }
+
+    private ProductResponseDto toProductResponse(ProductEntity entity) {
+        ProductResponseDto dto = new ProductResponseDto();
+        dto.id = entity.getId();
+        dto.name = entity.getName();
+        dto.price = entity.getPrice();
+        dto.description = entity.getDescription();
+        dto.stock = entity.getStock();
+        ProductResponseDto.UserSummaryDto userDto = new ProductResponseDto.UserSummaryDto();
+        userDto.id = entity.getOwner().getId();
+        userDto.name = entity.getOwner().getName();
+        userDto.email = entity.getOwner().getEmail();
+        dto.user = userDto;
+        dto.categories = entity.getCategories().stream()
+                .map(this::toCategorySummary)
+                .sorted((c1, c2) -> c1.name.compareTo(c2.name))
+                .toList();
+        dto.createdAt = entity.getCreatedAt();
+        dto.updatedAt = entity.getUpdatedAt();
+        return dto;
+    }
+
+    private ProductResponseDto.CategorySummaryDto toCategorySummary(CategoryEntity category) {
+        ProductResponseDto.CategorySummaryDto summary = new ProductResponseDto.CategorySummaryDto();
+        summary.id = category.getId();
+        summary.name = category.getName();
+        summary.description = category.getDescription();
+        return summary;
     }
 }
