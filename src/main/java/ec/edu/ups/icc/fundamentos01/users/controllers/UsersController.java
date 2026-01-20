@@ -55,4 +55,15 @@ public class UsersController {
         return service.getProductsByUserId(id);
     }
 
+    @GetMapping("/{id}/products-v2")
+    public List<ProductResponseDto> getProductsWithFilters(
+            @PathVariable Long id,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Long categoryId) {
+
+        return service.getProductsByUserIdWithFilters(id, name, minPrice, maxPrice, categoryId);
+    }
+
 }

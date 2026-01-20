@@ -17,14 +17,12 @@ public class CreateProductDto {
     public String description;
 
     @Min(value = 0, message = "El stock no puede ser negativo")
-    public Integer stock;  
+    public Integer stock; 
 
     // ============== RELACIONES ==============
 
     @NotNull(message = "El ID del usuario es obligatorio")
     public Long userId;
 
-    @NotNull(message = "Debe especificar al menos una categoría")
-    @Size(min = 1, message = "El producto debe tener al menos una categoría")
-    public Set<Long> categoryIds;  
+    public Set<Long> categoryIds;
 }

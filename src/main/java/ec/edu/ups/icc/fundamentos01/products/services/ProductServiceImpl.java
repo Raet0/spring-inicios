@@ -144,8 +144,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Set<CategoryEntity> validateAndGetCategories(Set<Long> categoryIds) {
+        // Si no hay categorías, retorna un conjunto vacío
         if (categoryIds == null || categoryIds.isEmpty()) {
-            throw new IllegalArgumentException("Debe proporcionar al menos una categoría");
+            return new HashSet<>();
         }
 
         Set<CategoryEntity> categories = new HashSet<>();

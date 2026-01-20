@@ -20,5 +20,12 @@ public interface UserService {
 
     List<ProductResponseDto> getProductsByUserId(Long userId);
 
+    List<ProductResponseDto> getProductsByUserIdWithFilters(
+            Long userId,
+            String name,
+            Double minPrice,
+            Double maxPrice,
+            Long categoryId
+    );
 
 }

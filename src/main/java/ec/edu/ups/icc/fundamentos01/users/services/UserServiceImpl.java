@@ -97,6 +97,34 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
+    @Override
+    public List<ProductResponseDto> getProductsByUserIdWithFilters(
+            Long userId,
+            String name,
+            Double minPrice,
+            Double maxPrice,
+            Long categoryId) {
+        
+        // Validar que el usuario existe
+        if (!userRepo.existsById(userId)) {
+            throw new IllegalStateException("User not found with ID: " + userId);
+        }
+
+        // Consultar productos con filtros directamente en la BD
+        List<ProductEntity> products = productRepository.findByOwnerIdWithFilters(
+                userId,
+                name,
+                minPrice,
+                maxPrice,
+                categoryId
+        );
+
+        // Mapear a DTOs
+        return products.stream()
+                .map(this::toProductResponse)
+                .toList();
+    }
+
     private ProductResponseDto toProductResponse(ProductEntity entity) {
         ProductResponseDto dto = new ProductResponseDto();
         dto.id = entity.getId();
@@ -104,15 +132,18 @@ public class UserServiceImpl implements UserService {
         dto.price = entity.getPrice();
         dto.description = entity.getDescription();
         dto.stock = entity.getStock();
+        
         ProductResponseDto.UserSummaryDto userDto = new ProductResponseDto.UserSummaryDto();
         userDto.id = entity.getOwner().getId();
         userDto.name = entity.getOwner().getName();
         userDto.email = entity.getOwner().getEmail();
         dto.user = userDto;
+        
         dto.categories = entity.getCategories().stream()
                 .map(this::toCategorySummary)
                 .sorted((c1, c2) -> c1.name.compareTo(c2.name))
                 .toList();
+        
         dto.createdAt = entity.getCreatedAt();
         dto.updatedAt = entity.getUpdatedAt();
         return dto;
