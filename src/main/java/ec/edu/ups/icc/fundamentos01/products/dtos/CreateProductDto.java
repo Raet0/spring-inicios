@@ -1,6 +1,8 @@
 // src/main/java/ec/edu/ups/icc/fundamentos01/products/dtos/CreateProductDto.java
 package ec.edu.ups.icc.fundamentos01.products.dtos;
 
+import java.util.List;
+
 import jakarta.validation.constraints.*;
 
 public class CreateProductDto {
@@ -24,4 +26,9 @@ public class CreateProductDto {
 
     @NotNull(message = "El ID de la categoría es obligatorio")
     public Long categoryId;
+
+    // new method
+    @NotNull(message = "Debe especificar al menos una categoría")
+    @Size(min = 1, message = "El producto debe tener al menos una categoría")
+    public List<Long> categoryIds;
 }
